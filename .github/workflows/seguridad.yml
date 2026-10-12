@@ -65,7 +65,7 @@ jobs:
         run: |
           export PATH="$RUNNER_TEMP/herramientas:$PATH"
           bash scripts/instalar.sh osv-scanner
-          osv-scanner scan source --recursive .
+          osv-scanner scan --recursive .
 
       - name: Trivy (configuración)
         if: ${{ !cancelled() }}
