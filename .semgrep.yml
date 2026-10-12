@@ -1,0 +1,12 @@
+rules:
+  - id: python-shell-true
+    message: Evitar shell=True; validar entradas y usar argumentos separados
+    severity: ERROR
+    languages: [python]
+    pattern: subprocess.run(..., shell=True, ...)
+
+  - id: python-tls-sin-validar
+    message: No desactivar la validación TLS
+    severity: ERROR
+    languages: [python]
+    pattern: requests.$METHOD(..., verify=False, ...)
