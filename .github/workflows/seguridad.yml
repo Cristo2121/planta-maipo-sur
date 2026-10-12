@@ -1,0 +1,74 @@
+name: seguridad-planta
+
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  buscar-secretos:
+    runs-on: ubuntu-latest
+    env:
+      SEMGREP_ENABLE_VERSION_CHECK: "0"
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Gitleaks
+        run: |
+          export PATH="$RUNNER_TEMP/herramientas:$PATH"
+          bash scripts/instalar.sh gitleaks
+          gitleaks dir . --config .gitleaks.toml --redact --verbose --exit-code 1
+
+      - name: Prueba funcional
+        env:
+          PLC_PASSWORD: ${{ secrets.PLC_PASSWORD }}
+        run: python3 scripts/prueba_funcional.py
+
+      - name: Semgrep (código propio)
+        if: ${{ !cancelled() }}
+        run: |
+          export PATH="$RUNNER_TEMP/herramientas:$PATH"
+          bash scripts/instalar.sh semgrep
+          semgrep scan --config .semgrep.yml --error --metrics=off --disable-version-check .
+
+      - name: Instalar Trivy
+        if: ${{ !cancelled() }}
+        run: bash scripts/instalar.sh trivy
+
+      - name: SBOM (lista de materiales del software)
+        if: ${{ !cancelled() }}
+        run: |
+          export PATH="$RUNNER_TEMP/herramientas:$PATH"
+          trivy fs --format cyclonedx --output sbom.cdx.json --no-progress .
+
+      - name: Guardar SBOM como artefacto
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: sbom
+          path: sbom.cdx.json
+
+      - name: Trivy (dependencias)
+        if: ${{ !cancelled() }}
+        run: |
+          export PATH="$RUNNER_TEMP/herramientas:$PATH"
+          trivy fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --no-progress .
+
+      - name: OSV-Scanner (dependencias)
+        if: ${{ !cancelled() }}
+        run: |
+          export PATH="$RUNNER_TEMP/herramientas:$PATH"
+          bash scripts/instalar.sh osv-scanner
+          osv-scanner scan source --recursive .
+
+      - name: Trivy (configuración)
+        if: ${{ !cancelled() }}
+        run: |
+          export PATH="$RUNNER_TEMP/herramientas:$PATH"
+          trivy config --severity HIGH,CRITICAL --exit-code 1 .
