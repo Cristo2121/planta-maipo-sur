@@ -3,4 +3,4 @@ controlador:
   host: 192.0.2.10
   puerto: 502
   usuario: operador
-  password: LAB-CLORO-2026-DEMO
+  password_env: PLC_PASSWORD
