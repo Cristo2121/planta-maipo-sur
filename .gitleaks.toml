@@ -1,0 +1,7 @@
+title = "Reglas del laboratorio Maipo Sur"
+
+[[rules]]
+id = "credencial-laboratorio-plc"
+description = "Credencial ficticia escrita en configuración"
+regex = '''LAB-[A-Z]+-[0-9]{4}-(?:DEMO|OK)'''
+tags = ["lab", "secret"]
