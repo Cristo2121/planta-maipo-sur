@@ -1,10 +1,5 @@
 title = "Reglas del laboratorio Maipo Sur"
 
-[allowlist]
-paths = [
-  '''(?i)\.md$'''
-]
-
 [[rules]]
 id = "credencial-laboratorio-plc"
 description = "Credencial ficticia escrita en configuración"
