@@ -64,9 +64,10 @@ El flujo físico y lógico de la planta se estructura en 4 componentes principal
   2. **Código prestado (SCA + SBOM):**
     * `Trivy fs` (escaneo de vulnerabilidades HIGH/CRITICAL en dependencias).
     * Generación de **SBOM CycloneDX** (`sbom.cdx.json`) almacenado como artefacto del build.
-     - `OSV-Scanner v2.6.0` (verificación de fuentes de dependencias abiertas). En la primera ejecución detectó `idna 3.9.0` con una vulnerabilidad conocida; se corrigió a `idna==3.15`.
+    * `OSV-Scanner v2.6.0` (verificación de fuentes de dependencias abiertas). En la primera ejecución detectó `idna 3.9.0` con una vulnerabilidad conocida; se corrigió a `idna==3.15`.
   3. **Configuración (IaC Scanning):**
-     - `Trivy config` sobre archivos de infraestructura (`infra/plc.tf`). Revisa la configuración declarada; hoy ese archivo solo define una variable y no tiene recursos que evaluar, por lo que no hay hallazgos de red.
+    * `Trivy config` sobre archivos de infraestructura (`infra/plc.tf`). Revisa la configuración declarada; hoy ese archivo solo define una variable y no tiene recursos que evaluar, por lo que no hay hallazgos de red.
+- **Dependencias del pipeline fijadas:** `actions/checkout` y `actions/upload-artifact` se invocan por SHA completo de commit; Gitleaks, Trivy y OSV-Scanner se instalan con versión fija y huella SHA-256 verificada (`scripts/instalar.sh`); Semgrep se instala con versión exacta (`==1.180.0`).
 - **Estado final del pipeline:** verde en la ejecución #18 (commit `64c3bb5`), después de corregir `idna`.
 
 ---
@@ -87,7 +88,7 @@ El flujo físico y lógico de la planta se estructura en 4 componentes principal
 Llegó la pull request **Propuesta #7** generada por `asistente-ia`, prometiendo "arreglar la lectura del controlador". Se audita bajo las 4 preguntas obligatorias:
 
 1. **¿Existe el paquete `plc_helper_utils`?**
-  - **EVIDENCIA:** **NO EXISTE.** Se verificó en el índice oficial de Python ([PyPI.org](https://pypi.org/)). Es una **alucinación de paquete** (un error conocido de los asistentes de IA). Representa riesgo de *Package Squatting* (un atacante podría registrar ese nombre en PyPI y ejecutar código malicioso en nuestros servidores).
+  - **EVIDENCIA:** **NO EXISTE.** Se verificó en el índice oficial de Python ([PyPI.org](https://pypi.org/)) y tampoco figura en `requirements.txt`. Es una **alucinación de paquete** (un error conocido de los asistentes de IA). Representa riesgo de *Package Squatting* (un atacante podría registrar ese nombre en PyPI y ejecutar código malicioso en nuestros servidores).
 2. **¿Qué hace con la entrada?**
   - **EVIDENCIA:** Concatena directamente cadenas en el sistema operativo mediante:
 
@@ -134,9 +135,9 @@ Antes de desplegar esta solución en una sanitaria real (bajo fiscalización de 
 
 Para reproducir localmente o en un runner de CI/CD idéntico:
 
-```
+```bash
 # 0. Instalar las herramientas con versión y huella SHA-256 fijas
-for t in gitleaks semgrep trivy; do bash scripts/instalar.sh $t; done
+for t in gitleaks semgrep trivy osv-scanner; do bash scripts/instalar.sh $t; done
 export PATH=/tmp/herramientas:$PATH
 
 # 1. Búsqueda determinista de secretos
@@ -151,6 +152,10 @@ trivy config --severity HIGH,CRITICAL .
 # 4. Generación de Lista de Materiales (SBOM)
 trivy fs --format cyclonedx --output sbom.cdx.json .
 
-# 5. Prueba funcional no destructiva
+# 5. Verificación de dependencias con vulnerabilidades conocidas
+osv-scanner scan source --recursive .
+
+# 6. Prueba funcional no destructiva
 python3 scripts/prueba_funcional.py
 ```
+
