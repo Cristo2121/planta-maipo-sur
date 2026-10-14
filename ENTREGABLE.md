@@ -6,15 +6,17 @@
 ---
 
 ## 1. Sistema y equipo
-
 - **Sector asignado:** Infraestructura Crítica Sanitaria · Agua Potable y Tratamiento.
 - **Nombre del equipo:** Equipo 1 - Guardianes de Maipo Sur.
-- **Asignación de roles:**
-  * **Operador de planta (sin teclado / veto físico):** Encargado de la calidad sanitaria del agua y seguridad del proceso físico de cloración.
+- **Integrantes y asignación de roles:**
+  **Cristofer Jeria:**
   * **Desarrollador (con teclado):** Modificación segura de archivos, aislamiento de credenciales y remediación de código.
   * **Guardián del pipeline (con teclado):** Configuración de compuertas automáticas en GitHub Actions (`seguridad.yml`) y análisis de logs.
+  * **Relator (compartido):** Redacción de la ficha técnica y exposición del criterio de riesgo ante la sala.
+  **Diego Silva:**
+  * **Operador de planta (sin teclado / veto físico):** Encargado de la calidad sanitaria del agua y seguridad del proceso físico de cloración.
   * **Auditor de IA (sin teclado):** Auditoría forense de dependencias, detección de alucinaciones y revisión de propuestas de asistentes de IA.
-  * **Relator (sin teclado):** Redacción de la ficha técnica y exposición del criterio de riesgo ante la sala.
+  * **Relator (compartido):** Redacción de la ficha técnica y exposición del criterio de riesgo ante la sala.
 
 ---
 
