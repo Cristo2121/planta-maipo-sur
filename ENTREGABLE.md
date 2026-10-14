@@ -1,7 +1,7 @@
 # Ficha de blindaje · Planta de Agua Potable Maipo Sur
 
-> **Expediente de Desarrollo Seguro y Gestión de Riesgo Operacional**
-> Caso: Planta de Tratamiento y Distribución de Agua Potable «Maipo Sur» (80.000 habitantes).
+> **Expediente de Desarrollo Seguro y Gestión de Riesgo Operacional**  
+> Caso: Planta de Tratamiento y Distribución de Agua Potable «Maipo Sur» (80.000 habitantes).  
 > Alineado con Ley Marco de Ciberseguridad N° 21.663 (OIV), NIST SP 800-82 Rev. 3 e IEC 62443-4-1.
 
 ---
@@ -37,7 +37,9 @@ El flujo físico y lógico de la planta se estructura en 4 componentes principal
 [ Bomba / Válvula Dosificadora ] ──► [ Red de Agua Potable (80.000 personas) ]
 ```
 
-- **Archivo de evidencia gráfica subido:** `evidencias/diagrama_flujo_maipo_sur.png`
+![Diagrama de Zonas y Conductos Purdue](evidencias/diagrama_flujo_maipo_sur.svg)
+
+- **Archivo de evidencia gráfica subido:** `evidencias/diagrama_flujo_maipo_sur.svg`
 
 ---
 
@@ -52,7 +54,7 @@ El flujo físico y lógico de la planta se estructura en 4 componentes principal
 ---
 
 ## 4. Controles Automáticos Ejecutados en el Pipeline
-- **Enlace a la ejecución en GitHub Actions:** `https://github.com/Cristo2121/planta-maipo-sur/actions`
+- **Enlace a la ejecución en GitHub Actions:** `https://github.com/Cristo2121/planta-maipo-sur/actions/runs/38287677720`
 - **Controles ejecutados:**
   1. **Código propio (SAST + Detección de Secretos):** 
      - `Gitleaks v8.30.1` (con regla estricta `.gitleaks.toml`).
@@ -71,7 +73,7 @@ El flujo físico y lógico de la planta se estructura en 4 componentes principal
 
 | Hallazgo Detectado | Herramienta | Gravedad | Decisión de Seguridad | Justificación Técnica y Operativa | Responsable y Fecha |
 |---|---|:---:|:---:|---|---|
-| Contraseña fija del PLC (`LAB-CLORO-2026-DEMO`) escrita en `config.yaml` | Gitleaks | **CRÍTICA** | **Corregir Ahora** | Un secreto en código público permite a cualquiera intervenir la dosificación de la planta. Se retiró del archivo, se configuró `password_env: PLC_PASSWORD` y se inyecta desde GitHub Secrets. | Desarrollador / 12-Oct-2026 |
+| Contraseña de fábrica del PLC (valor omitido por política de seguridad) escrita en `config.yaml` | Gitleaks | **CRÍTICA** | **Corregir Ahora** | Un secreto en código público permite a cualquiera intervenir la dosificación de la planta. Se retiró del archivo, se configuró `password_env: PLC_PASSWORD` y se inyecta desde GitHub Secrets. | Desarrollador / 12-Oct-2026 |
 | Credencial expuesta potencialmente guardada en historial antiguo de git | Análisis Histórico (NIST PS) | **ALTA** | **Aceptar Temporalmente con Mitigación** | En el laboratorio de emergencia se retiró del archivo actual. Para producción se asume el secreto comprometido: se ejecuta rotación física de la contraseña en el PLC y se audita el registro de accesos. | Operador Planta / 12-Oct-2026 |
 | Dependencias con versiones no fijadas en componentes auxiliares | Trivy SCA | **MEDIA** | **Postergar con Fecha** | Se identificó necesidad de fijar hashes exactos en todo el árbol de dependencias. Se calendariza para el siguiente sprint de mantención programada sin afectar la disponibilidad del servicio. | Guardián Pipeline / 19-Oct-2026 |
 
